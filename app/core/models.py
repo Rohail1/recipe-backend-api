@@ -8,6 +8,16 @@ from django.contrib.auth.models import (
     PermissionsMixin,
 )
 
+class UserManager(BaseUserManager):
+
+    def create_user(self, email, password=None, **extra_fields):
+        """Creates a user using email address"""
+        if not email:
+            raise ValueError("User must have an email address")
+        user = self.model(email=self.normalize_email(email), **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
 
 class User(AbstractBaseUser, PermissionsMixin):
     """User in the System"""
@@ -18,3 +28,5 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'email'
+
+    objects = UserManager()
